@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
             ParentPatrolTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
-                        name = "Android",
+                        name = "ParentPatrol",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -42,6 +42,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     ParentPatrolTheme {
-        Greeting("Android")
+        Greeting("ParentPatrol")
+
     }
 }

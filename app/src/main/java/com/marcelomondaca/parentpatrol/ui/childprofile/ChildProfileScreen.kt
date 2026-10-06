@@ -1,5 +1,8 @@
 package com.marcelomondaca.parentpatrol.ui.childprofile
 
+import androidx.compose.foundation.clickable // Permite detectar toques.
+import androidx.compose.foundation.interaction.MutableInteractionSource // Controla la interacción táctil.
+import androidx.compose.foundation.layout.Box // Permite superponer componentes.
 import androidx.compose.foundation.layout.Column // Organiza elementos verticalmente.
 import androidx.compose.foundation.layout.Spacer // Crea espacios entre elementos.
 import androidx.compose.foundation.layout.fillMaxSize // Ocupa toda la pantalla.
@@ -7,43 +10,43 @@ import androidx.compose.foundation.layout.fillMaxWidth // Ocupa todo el ancho di
 import androidx.compose.foundation.layout.height // Permite definir una altura.
 import androidx.compose.foundation.layout.padding // Agrega espacio alrededor del contenido.
 import androidx.compose.foundation.layout.safeDrawingPadding // Respeta las zonas seguras.
+import androidx.compose.material3.Button // Botón para continuar.
+import androidx.compose.material3.DatePicker // Selector de fecha.
+import androidx.compose.material3.DatePickerDialog // Ventana del calendario.
+import androidx.compose.material3.ExperimentalMaterial3Api // Permite usar APIs experimentales.
 import androidx.compose.material3.MaterialTheme // Accede al tema visual de la app.
 import androidx.compose.material3.OutlinedTextField // Campo de texto con borde.
 import androidx.compose.material3.OutlinedTextFieldDefaults // Configura colores del campo.
+import androidx.compose.material3.SelectableDates // Define qué fechas se pueden seleccionar.
 import androidx.compose.material3.Text // Muestra texto en pantalla.
+import androidx.compose.material3.TextButton // Botones del calendario.
+import androidx.compose.material3.rememberDatePickerState // Guarda el estado del calendario.
 import androidx.compose.runtime.Composable // Permite crear componentes Compose.
 import androidx.compose.runtime.getValue // Permite leer estados con "by".
 import androidx.compose.runtime.mutableStateOf // Crea un estado modificable.
+import androidx.compose.runtime.remember // Conserva el estado.
 import androidx.compose.runtime.setValue // Permite modificar estados con "by".
 import androidx.compose.ui.Modifier // Permite modificar componentes.
 import androidx.compose.ui.unit.dp // Unidad de medida para dimensiones.
-import androidx.compose.material3.DatePicker // Selector de fecha.
-import androidx.compose.material3.DatePickerDialog // Ventana del calendario.
-import androidx.compose.material3.TextButton // Botones del calendario.
-import androidx.compose.foundation.clickable // Permite detectar el toque sobre el campo.
-import androidx.compose.material3.rememberDatePickerState // Guarda el estado del calendario.
-import androidx.compose.material3.ExperimentalMaterial3Api // Permite usar APIs experimentales de Material 3.
-import androidx.compose.foundation.interaction.MutableInteractionSource // Controla la interacción táctil.
-import androidx.compose.foundation.layout.Box // Permite superponer componentes.
-import androidx.compose.runtime.remember // Conserva objetos durante la recomposición.
-import java.time.Instant // Convierte la fecha seleccionada.
-import java.time.ZoneId // Usa la zona horaria del dispositivo.
-import java.time.format.DateTimeFormatter // Da formato DD/MM/AAAA.
-import java.time.Period // Calcula la diferencia entre dos fechas.
+import java.time.Instant // Convierte milisegundos a fecha.
 import java.time.LocalDate // Obtiene la fecha actual.
-import androidx.compose.material3.SelectableDates // Define qué fechas se pueden seleccionar.
+import java.time.Period // Calcula la diferencia entre fechas.
+import java.time.ZoneId // Define la zona horaria.
+import java.time.format.DateTimeFormatter // Da formato DD/MM/AAAA.
 
-@OptIn(ExperimentalMaterial3Api::class) // Habilita el uso del DatePicker experimental.
-
+@OptIn(ExperimentalMaterial3Api::class) // Habilita el DatePicker experimental.
 @Composable
-fun ChildProfileScreen() { // Pantalla para configurar el perfil del niño.
+fun ChildProfileScreen(
+    onContinueClick: () -> Unit // Acción al presionar Continuar.
+) {
 
-    var childName by remember { mutableStateOf("") } // Guarda el nombre ingresado.
+    var childName by remember { mutableStateOf("") } // Guarda el nombre.
     var birthDate by remember { mutableStateOf("") } // Guarda la fecha de nacimiento.
     var childAge by remember { mutableStateOf<Int?>(null) } // Guarda la edad calculada.
-    var showDatePicker by remember { mutableStateOf(false) } // Controla si mostramos el calendario.
+    var showDatePicker by remember { mutableStateOf(false) } // Controla el calendario.
 
-    val initialDate = LocalDate.now().minusYears(5) // Abre el calendario naciemientos de 5 años atrás.
+    val initialDate = LocalDate.now()
+        .minusYears(5) // Abre el calendario 5 años atrás.
 
     val initialDateMillis = initialDate
         .atStartOfDay(ZoneId.of("UTC"))
@@ -53,18 +56,20 @@ fun ChildProfileScreen() { // Pantalla para configurar el perfil del niño.
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = initialDateMillis,
         selectableDates = object : SelectableDates {
+
             override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                val birthDate = Instant
+
+                val selectedBirthDate = Instant
                     .ofEpochMilli(utcTimeMillis)
                     .atZone(ZoneId.of("UTC"))
                     .toLocalDate()
 
                 val age = Period.between(
-                    birthDate,
+                    selectedBirthDate,
                     LocalDate.now()
                 ).years // Calcula la edad para esta fecha.
 
-                return age in 5..17 // Permite únicamente edades entre 5 y 17 años.
+                return age in 5..17 // Permite edades entre 5 y 17 años.
             }
         }
     )
@@ -75,6 +80,7 @@ fun ChildProfileScreen() { // Pantalla para configurar el perfil del niño.
             .safeDrawingPadding() // Evita cámara y barras del sistema.
             .padding(24.dp) // Agrega margen interior.
     ) {
+
         Text(
             text = "Configurar perfil del niño",
             style = MaterialTheme.typography.headlineMedium
@@ -83,19 +89,19 @@ fun ChildProfileScreen() { // Pantalla para configurar el perfil del niño.
         Spacer(modifier = Modifier.height(24.dp)) // Separa título y campo.
 
         OutlinedTextField(
-            value = childName, // Muestra el nombre actual.
+            value = childName,
             onValueChange = { childName = it }, // Actualiza el nombre.
             label = { Text("Nombre") },
-            singleLine = true, // Mantiene el nombre en una línea.
-            modifier = Modifier.fillMaxWidth(), // Ocupa todo el ancho.
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = MaterialTheme.colorScheme.onSurface, // Texto activo.
-                unfocusedTextColor = MaterialTheme.colorScheme.onSurface, // Texto inactivo.
-                focusedLabelColor = MaterialTheme.colorScheme.primary, // Etiqueta activa.
-                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant, // Etiqueta inactiva.
-                focusedBorderColor = MaterialTheme.colorScheme.primary, // Borde activo.
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline, // Borde inactivo.
-                cursorColor = MaterialTheme.colorScheme.primary // Cursor.
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                focusedLabelColor = MaterialTheme.colorScheme.primary,
+                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                cursorColor = MaterialTheme.colorScheme.primary
             )
         )
 
@@ -104,9 +110,10 @@ fun ChildProfileScreen() { // Pantalla para configurar el perfil del niño.
         Box(
             modifier = Modifier.fillMaxWidth()
         ) {
+
             OutlinedTextField(
                 value = birthDate,
-                onValueChange = { }, // La fecha se selecciona desde el calendario.
+                onValueChange = { }, // La fecha se elige desde el calendario.
                 label = { Text("Fecha de nacimiento") },
                 placeholder = { Text("DD/MM/AAAA") },
                 singleLine = true,
@@ -116,9 +123,11 @@ fun ChildProfileScreen() { // Pantalla para configurar el perfil del niño.
 
             Box(
                 modifier = Modifier
-                    .matchParentSize() // Cubre exactamente el campo de fecha.
+                    .matchParentSize() // Cubre el campo de fecha.
                     .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
+                        interactionSource = remember {
+                            MutableInteractionSource()
+                        },
                         indication = null
                     ) {
                         showDatePicker = true // Abre el calendario.
@@ -126,7 +135,7 @@ fun ChildProfileScreen() { // Pantalla para configurar el perfil del niño.
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp)) // Separa la fecha de la edad.
+        Spacer(modifier = Modifier.height(16.dp)) // Separa fecha y edad.
 
         Text(
             text = if (childAge != null) {
@@ -136,25 +145,39 @@ fun ChildProfileScreen() { // Pantalla para configurar el perfil del niño.
             },
             style = MaterialTheme.typography.bodyLarge
         )
-    } // Cierra Column.
+
+        Spacer(modifier = Modifier.height(32.dp)) // Separa edad y botón.
+
+        Button(
+            onClick = onContinueClick, // Continúa a la siguiente pantalla.
+            enabled = childName.isNotBlank() && childAge in 5..17, // Valida el formulario.
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Continuar")
+        }
+    }
 
     if (showDatePicker) { // Muestra el selector de fecha.
+
         DatePickerDialog(
             onDismissRequest = {
                 showDatePicker = false // Cierra el calendario.
             },
             confirmButton = {
+
                 TextButton(
                     onClick = {
+
                         datePickerState.selectedDateMillis?.let { millis ->
+
                             val selectedDate = Instant
                                 .ofEpochMilli(millis)
                                 .atZone(ZoneId.of("UTC"))
-                                .toLocalDate() // Convierte la selección a una fecha.
+                                .toLocalDate() // Convierte la selección a fecha.
 
                             birthDate = selectedDate.format(
                                 DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                            ) // Formatea la fecha para mostrarla.
+                            ) // Formatea la fecha.
 
                             childAge = Period.between(
                                 selectedDate,
@@ -169,19 +192,20 @@ fun ChildProfileScreen() { // Pantalla para configurar el perfil del niño.
                 }
             },
             dismissButton = {
+
                 TextButton(
                     onClick = {
-                        showDatePicker = false // Cancela y cierra el calendario.
+                        showDatePicker = false // Cancela y cierra.
                     }
                 ) {
                     Text("Cancelar")
                 }
             }
         ) {
+
             DatePicker(
                 state = datePickerState // Controla la fecha seleccionada.
             )
         }
     }
-
-} // Cierra ChildProfileScreen.
+}

@@ -20,8 +20,9 @@ import androidx.compose.ui.unit.dp // Unidad de medida.
 import androidx.compose.material3.Button // Botón relleno para la opción seleccionada.
 
 @Composable
-fun ScreenTimeScreen() {
-
+  fun ScreenTimeScreen(
+    onContinueClick: (Int) -> Unit // Envía los minutos seleccionados.
+  ){
     var selectedMinutes by remember {
         mutableStateOf<Int?>(null)
     } // Guarda el tiempo seleccionado.
@@ -103,7 +104,9 @@ fun ScreenTimeScreen() {
 
         Button(
             onClick = {
-                // La navegación se agregará en el siguiente paso.
+                selectedMinutes?.let { minutes ->
+                    onContinueClick(minutes) // Envía el tiempo seleccionado.
+                }
             },
             enabled = selectedMinutes != null, // Solo se habilita al elegir un tiempo.
             modifier = Modifier.fillMaxWidth()

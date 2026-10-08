@@ -8,6 +8,7 @@ import com.marcelomondaca.parentpatrol.ui.childprofile.ChildProfileScreen // Pan
 import com.marcelomondaca.parentpatrol.ui.protection.ProtectionScreen // Pantalla de protección del menor.
 import com.marcelomondaca.parentpatrol.ui.screentime.ScreenTimeScreen // Pantalla de tiempo de uso.
 import com.marcelomondaca.parentpatrol.ui.welcome.WelcomeScreen // Pantalla de bienvenida.
+import androidx.lifecycle.viewmodel.compose.viewModel // Obtiene el ViewModel asociado a la pantalla.
 
 @Composable // Indica que esta función crea interfaz con Compose.
 fun ParentPatrolNavHost() { // Gestiona la navegación de ParentPatrol.
@@ -44,7 +45,9 @@ fun ParentPatrolNavHost() { // Gestiona la navegación de ParentPatrol.
         }
 
         composable("protection") { // Define la ruta de protección.
-            ProtectionScreen() // Muestra la pantalla de protección.
+            ProtectionScreen( // Muestra la pantalla de protección.
+                viewModel = viewModel() // Obtiene el ViewModel asociado a esta pantalla.
+            )
         }
     } // Fin de las rutas del NavHost.
 } // Fin de ParentPatrolNavHost.

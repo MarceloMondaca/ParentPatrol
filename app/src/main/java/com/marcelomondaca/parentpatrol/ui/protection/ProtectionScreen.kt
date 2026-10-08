@@ -12,25 +12,15 @@ import androidx.compose.ui.unit.dp // Unidad de medida.
 import androidx.compose.foundation.layout.Spacer // Crea espacios entre elementos.
 import androidx.compose.foundation.layout.height // Permite definir una altura.
 import androidx.compose.material3.Switch // Interruptor de activación.
-import androidx.compose.runtime.getValue // Permite leer estados con "by".
-import androidx.compose.runtime.mutableStateOf // Crea un estado modificable.
-import androidx.compose.runtime.remember // Conserva el estado.
-import androidx.compose.runtime.setValue // Permite modificar estados con "by".
 import androidx.compose.foundation.layout.Row // Organiza elementos horizontalmente.
 import androidx.compose.foundation.layout.Arrangement // Distribuye el espacio entre elementos.
 import androidx.compose.ui.Alignment // Permite alinear los elementos.
 import androidx.compose.foundation.layout.fillMaxWidth // Ocupa todo el ancho disponible.
 
 @Composable // Indica que esta función crea interfaz con Compose.
-fun ProtectionScreen() { // Crea la pantalla de protección.
-
-    var blockAdultContent by remember {
-        mutableStateOf(false)
-    } // Guarda si el bloqueo de contenido adulto está activado.
-
-    var blockInappropriateApps by remember {
-        mutableStateOf(false)
-    } // Guarda si el bloqueo de apps no recomendadas está activado.
+fun ProtectionScreen(
+    viewModel: ProtectionViewModel // Recibe el ViewModel de protección.
+) { // Crea la pantalla de protección.
 
     Column( // Contenedor vertical de la pantalla.
         modifier = Modifier
@@ -60,9 +50,9 @@ fun ProtectionScreen() { // Crea la pantalla de protección.
             )
 
             Switch(
-                checked = blockAdultContent, // Muestra el estado actual.
+                checked = viewModel.blockAdultContent, // Lee el estado desde el ViewModel.
                 onCheckedChange = { isChecked ->
-                    blockAdultContent = isChecked // Guarda el nuevo estado.
+                    viewModel.updateAdultContentBlocking(isChecked) // Solicita actualizarlo.
                 }
             )
          }
@@ -81,9 +71,9 @@ fun ProtectionScreen() { // Crea la pantalla de protección.
             )
 
             Switch(
-                checked = blockInappropriateApps, // Muestra el estado actual.
+                checked = viewModel.blockInappropriateApps, // Muestra el estado actual.
                 onCheckedChange = { isChecked ->
-                    blockInappropriateApps = isChecked // Guarda el nuevo estado.
+                    viewModel.updateInappropriateApps(isChecked) // Solicita actualizarlo.
                 }
             )
         }

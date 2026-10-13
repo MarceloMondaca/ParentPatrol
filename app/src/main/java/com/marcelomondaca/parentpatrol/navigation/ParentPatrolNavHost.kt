@@ -9,6 +9,7 @@ import com.marcelomondaca.parentpatrol.ui.protection.ProtectionScreen // Pantall
 import com.marcelomondaca.parentpatrol.ui.screentime.ScreenTimeScreen // Pantalla de tiempo de uso.
 import com.marcelomondaca.parentpatrol.ui.welcome.WelcomeScreen // Pantalla de bienvenida.
 import androidx.lifecycle.viewmodel.compose.viewModel // Obtiene el ViewModel asociado a la pantalla.
+import androidx.lifecycle.viewmodel.compose.viewModel // Obtiene el ViewModel asociado a la pantalla.
 
 @Composable // Indica que esta función crea interfaz con Compose.
 fun ParentPatrolNavHost() { // Gestiona la navegación de ParentPatrol.
@@ -37,9 +38,10 @@ fun ParentPatrolNavHost() { // Gestiona la navegación de ParentPatrol.
         }
 
         composable("screen_time") { // Define la ruta de tiempo de uso.
-            ScreenTimeScreen( // Muestra la configuración de tiempo.
+            ScreenTimeScreen(
+                viewModel = viewModel(), // Obtiene el ViewModel de tiempo de pantalla.
                 onContinueClick = { minutes -> // Recibe los minutos seleccionados.
-                    navController.navigate("protection") // Va a protección del menor.
+                    navController.navigate("protection") // Navega a protección del menor.
                 }
             )
         }

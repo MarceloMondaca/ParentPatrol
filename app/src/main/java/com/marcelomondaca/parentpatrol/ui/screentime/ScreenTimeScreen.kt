@@ -11,21 +11,16 @@ import androidx.compose.material3.MaterialTheme // Accede al tema visual de Pare
 import androidx.compose.material3.OutlinedButton // Botón con borde.
 import androidx.compose.material3.Text // Muestra texto.
 import androidx.compose.runtime.Composable // Permite crear componentes Compose.
-import androidx.compose.runtime.getValue // Permite leer estados con "by".
-import androidx.compose.runtime.mutableStateOf // Crea un estado modificable.
-import androidx.compose.runtime.remember // Conserva el estado.
-import androidx.compose.runtime.setValue // Permite modificar estados con "by".
 import androidx.compose.ui.Modifier // Permite modificar componentes.
 import androidx.compose.ui.unit.dp // Unidad de medida.
 import androidx.compose.material3.Button // Botón relleno para la opción seleccionada.
 
 @Composable
-  fun ScreenTimeScreen(
+fun ScreenTimeScreen(
+    viewModel: ScreenTimeViewModel, // Recibe el ViewModel de tiempo de pantalla.
     onContinueClick: (Int) -> Unit // Envía los minutos seleccionados.
-  ){
-    var selectedMinutes by remember {
-        mutableStateOf<Int?>(null)
-    } // Guarda el tiempo seleccionado.
+) {
+    val selectedMinutes = viewModel.selectedMinutes
 
     Column(
         modifier = Modifier
@@ -50,14 +45,14 @@ import androidx.compose.material3.Button // Botón relleno para la opción selec
 
         if (selectedMinutes == 30) {
             Button(
-                onClick = { selectedMinutes = 30 },
+                onClick = { viewModel.saveSelectedMinutes(30) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("30 minutos")
             }
         } else {
             OutlinedButton(
-                onClick = { selectedMinutes = 30 },
+                onClick = { viewModel.saveSelectedMinutes(30) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("30 minutos")
@@ -68,14 +63,14 @@ import androidx.compose.material3.Button // Botón relleno para la opción selec
 
         if (selectedMinutes == 60) {
             Button(
-                onClick = { selectedMinutes = 60 },
+                onClick = { viewModel.saveSelectedMinutes(60) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("60 minutos")
             }
         } else {
             OutlinedButton(
-                onClick = { selectedMinutes = 60 },
+                onClick = { viewModel.saveSelectedMinutes(60) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("60 minutos")
@@ -86,14 +81,14 @@ import androidx.compose.material3.Button // Botón relleno para la opción selec
 
         if (selectedMinutes == 90) {
             Button(
-                onClick = { selectedMinutes = 90 },
+                onClick = { viewModel.saveSelectedMinutes(90) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("90 minutos")
             }
         } else {
             OutlinedButton(
-                onClick = { selectedMinutes = 90 },
+                onClick = { viewModel.saveSelectedMinutes(90) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("90 minutos")

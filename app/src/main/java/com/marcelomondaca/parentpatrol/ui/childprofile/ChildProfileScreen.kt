@@ -37,11 +37,12 @@ import java.time.format.DateTimeFormatter // Da formato DD/MM/AAAA.
 @OptIn(ExperimentalMaterial3Api::class) // Habilita el DatePicker experimental.
 @Composable
 fun ChildProfileScreen(
-    onContinueClick: () -> Unit // Acción al presionar Continuar.
+    onContinueClick: (String, Long) -> Unit // Entrega el nombre y la fecha de nacimiento.
 ) {
 
     var childName by remember { mutableStateOf("") } // Guarda el nombre.
     var birthDate by remember { mutableStateOf("") } // Guarda la fecha de nacimiento.
+    var birthDateMillis by remember { mutableStateOf<Long?>(null) } // Guarda la fecha seleccionada en milisegundos.
     var childAge by remember { mutableStateOf<Int?>(null) } // Guarda la edad calculada.
     var showDatePicker by remember { mutableStateOf(false) } // Controla el calendario.
 
@@ -149,8 +150,12 @@ fun ChildProfileScreen(
         Spacer(modifier = Modifier.height(32.dp)) // Separa edad y botón.
 
         Button(
-            onClick = onContinueClick, // Continúa a la siguiente pantalla.
-            enabled = childName.isNotBlank() && childAge in 5..17, // Valida el formulario.
+            onClick = {
+                birthDateMillis?.let { millis ->
+                    onContinueClick(childName.trim(), millis) // Entrega los datos del niño.
+                }
+            },
+            enabled = childName.isNotBlank() && childAge in 5..17 && birthDateMillis != null,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Continuar")
@@ -169,7 +174,7 @@ fun ChildProfileScreen(
                     onClick = {
 
                         datePickerState.selectedDateMillis?.let { millis ->
-
+                            birthDateMillis = millis // Conserva la fecha para guardarla en Room.
                             val selectedDate = Instant
                                 .ofEpochMilli(millis)
                                 .atZone(ZoneId.of("UTC"))

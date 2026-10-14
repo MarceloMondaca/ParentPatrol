@@ -2,6 +2,11 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp) // Activa KSP en el módulo de nuestra aplicación.
+}
+
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas") // Guarda los esquemas de Room para futuras migraciones.
 }
 
 android {
@@ -59,4 +64,8 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.datastore.preferences) // Permite guardar preferencias de forma persistente.
+    implementation(libs.androidx.room.runtime) // Permite utilizar la base de datos Room.
+    implementation(libs.androidx.room.ktx) // Facilita el uso de Room con corrutinas.
+    ksp(libs.androidx.room.compiler) // Genera automáticamente el código de Room.
+
 }

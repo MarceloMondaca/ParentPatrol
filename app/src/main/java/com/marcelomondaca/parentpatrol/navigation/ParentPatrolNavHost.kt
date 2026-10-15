@@ -91,8 +91,15 @@ fun ParentPatrolNavHost() { // Gestiona la navegación de ParentPatrol.
 
         composable("child_profiles") { // Pantalla principal de perfiles infantiles.
             ChildProfilesScreen(
-                onAddChildClick = { // Acción al presionar Agregar niño.
-                    navController.navigate("child_profile") // Abre el formulario.
+                onAddChildClick = { // Permite registrar otro niño.
+                    navController.navigate("child_profile")
+                },
+                onChildSelected = { childId -> // Recibe el ID del perfil seleccionado.
+                    Toast.makeText(
+                        context,
+                        "Perfil seleccionado: $childId",
+                        Toast.LENGTH_SHORT
+                    ).show() // Confirma temporalmente la selección.
                 }
             )
         }

@@ -1,33 +1,80 @@
+
 package com.marcelomondaca.parentpatrol.data
 
-import android.content.Context // Permite acceder al contexto de Android.
-import androidx.datastore.preferences.preferencesDataStore // Crea un DataStore de preferencias.
-import androidx.datastore.preferences.core.intPreferencesKey // Crea claves para guardar números enteros.
-import androidx.datastore.preferences.core.edit // Permite modificar las preferencias.
-import kotlinx.coroutines.flow.Flow // Representa datos que pueden cambiar.
-import kotlinx.coroutines.flow.map // Permite transformar los datos recibidos.
+// -------------------------------------------------
+// ANDROID Y DATASTORE
+// -------------------------------------------------
 
+import android.content.Context
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+
+// -------------------------------------------------
+// FLUJOS DE DATOS
+// -------------------------------------------------
+
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+
+// -------------------------------------------------
+// ALMACENAMIENTO DE PREFERENCIAS
+// -------------------------------------------------
+
+// DataStore utilizado para guardar los tiempos.
 private val Context.screenTimeDataStore by preferencesDataStore(
-    name = "screen_time_settings" // Archivo donde guardaremos el tiempo permitido.
+    name = "screen_time_settings"
 )
 
+/**
+ * Administra el tiempo de uso permitido
+ * para cada perfil infantil.
+ */
 class ScreenTimePreferences(
-    private val context: Context // Recibe el contexto para acceder a DataStore.
-)
- {
+    private val context: Context
+) {
 
-    private object PreferencesKeys {
-        val SELECTED_MINUTES = intPreferencesKey("selected_minutes") // Clave para guardar los minutos.
-    }
+    // -------------------------------------------------
+    // 1. CLAVE INDIVIDUAL DEL PERFIL
+    // -------------------------------------------------
 
-    suspend fun saveSelectedMinutes(minutes: Int) { // Guarda el tiempo seleccionado.
-        context.screenTimeDataStore.edit { preferences -> // Abre las preferencias para modificarlas.
-            preferences[PreferencesKeys.SELECTED_MINUTES] = minutes // Guarda los minutos seleccionados.
+    // Genera una clave utilizando el ID del niño.
+    private fun minutesKey(childId: Long) =
+        intPreferencesKey("selected_minutes_$childId")
+
+    // -------------------------------------------------
+    // 2. GUARDAR TIEMPO DE USO
+    // -------------------------------------------------
+
+    // Guarda los minutos del niño seleccionado.
+    suspend fun saveSelectedMinutes(
+        childId: Long,
+        minutes: Int
+    ) {
+
+        context.screenTimeDataStore.edit { preferences ->
+
+            // Guarda el tiempo con su clave individual.
+            preferences[minutesKey(childId)] = minutes
+
         }
-    }
 
-     val selectedMinutesFlow: Flow<Int?> = context.screenTimeDataStore.data
-         .map { preferences -> // Lee las preferencias almacenadas.
-             preferences[PreferencesKeys.SELECTED_MINUTES] // Recupera los minutos guardados.
-         }
-}
+    } // Fin de saveSelectedMinutes.
+
+    // -------------------------------------------------
+    // 3. CONSULTAR TIEMPO DE USO
+    // -------------------------------------------------
+
+    // Observa los minutos del niño seleccionado.
+    fun selectedMinutesFlow(childId: Long): Flow<Int?> {
+
+        return context.screenTimeDataStore.data.map { preferences ->
+
+            // Recupera el tiempo de este perfil.
+            preferences[minutesKey(childId)]
+
+        }
+
+    } // Fin de selectedMinutesFlow.
+
+} // Fin de ScreenTimePreferences.

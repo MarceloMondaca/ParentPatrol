@@ -43,13 +43,16 @@ import com.marcelomondaca.parentpatrol.ui.welcome.WelcomeScreen
 /**
  * Gestiona la navegación principal de ParentPatrol.
  *
- * Permite registrar, seleccionar, configurar
- * y eliminar perfiles infantiles.
+ * Permite:
+ * - Registrar perfiles infantiles.
+ * - Seleccionar y configurar cada niño.
+ * - Eliminar perfiles definitivamente.
+ * - Acceder al tiempo de uso individual.
  */
 @Composable
 fun ParentPatrolNavHost() {
 
-    // Controlador de navegación.
+    // Controlador principal de navegación.
     val navController = rememberNavController()
 
     // Contexto para mostrar mensajes.
@@ -59,19 +62,20 @@ fun ParentPatrolNavHost() {
     val profilesViewModel: ChildProfilesViewModel = viewModel()
 
     // -------------------------------------------------
-    // 1. PANTALLA INICIAL
+    // 1. DETERMINAR PANTALLA INICIAL
     // -------------------------------------------------
 
-    // Espera el resultado de Room.
+    // Ruta inicial pendiente de consultar.
     var initialRoute by remember {
         mutableStateOf<String?>(null)
     }
 
-    // Comprueba si existen perfiles.
+    // Comprueba si existen perfiles en Room.
     LaunchedEffect(Unit) {
 
         profilesViewModel.checkExistingProfiles { hasProfiles ->
 
+            // Selecciona la pantalla inicial.
             initialRoute = if (hasProfiles) {
                 "child_profiles"
             } else {
@@ -82,11 +86,11 @@ fun ParentPatrolNavHost() {
 
     }
 
-    // Espera una ruta válida.
+    // Espera el resultado de Room.
     val startRoute = initialRoute ?: return
 
     // -------------------------------------------------
-    // 2. NAVEGACIÓN PRINCIPAL
+    // 2. CONTENEDOR PRINCIPAL DE NAVEGACIÓN
     // -------------------------------------------------
 
     NavHost(
@@ -95,7 +99,7 @@ fun ParentPatrolNavHost() {
     ) {
 
         // -------------------------------------------------
-        // 3. BIENVENIDA
+        // 3. PANTALLA DE BIENVENIDA
         // -------------------------------------------------
 
         composable("welcome") {
@@ -112,7 +116,7 @@ fun ParentPatrolNavHost() {
         } // Fin de welcome.
 
         // -------------------------------------------------
-        // 4. REGISTRO INFANTIL
+        // 4. REGISTRO DE PERFIL INFANTIL
         // -------------------------------------------------
 
         composable("child_profile") {
@@ -123,7 +127,7 @@ fun ParentPatrolNavHost() {
             ChildProfileScreen(
                 onContinueClick = { name, birthDate ->
 
-                    // Guarda el perfil en Room.
+                    // Guarda el nuevo perfil en Room.
                     childProfileViewModel.addChild(
                         name = name,
                         birthDate = birthDate,
@@ -131,6 +135,7 @@ fun ParentPatrolNavHost() {
                         // Perfil guardado correctamente.
                         onSaved = {
 
+                            // Regresa a la lista de perfiles.
                             navController.navigate("child_profiles") {
 
                                 // Retira el formulario del historial.
@@ -160,19 +165,21 @@ fun ParentPatrolNavHost() {
         } // Fin de child_profile.
 
         // -------------------------------------------------
-        // 5. LISTA DE PERFILES
+        // 5. LISTA DE PERFILES INFANTILES
         // -------------------------------------------------
 
         composable("child_profiles") {
 
             ChildProfilesScreen(
 
-                // Registra otro niño.
+                // Abre el formulario de registro.
                 onAddChildClick = {
+
                     navController.navigate("child_profile")
+
                 },
 
-                // Abre el perfil seleccionado.
+                // Abre la configuración del niño.
                 onChildSelected = { childId ->
 
                     navController.navigate("child_settings/$childId")
@@ -184,29 +191,38 @@ fun ParentPatrolNavHost() {
         } // Fin de child_profiles.
 
         // -------------------------------------------------
-        // 6. CONFIGURACIÓN INFANTIL
+        // 6. CONFIGURACIÓN INDIVIDUAL DEL NIÑO
         // -------------------------------------------------
 
         composable("child_settings/{childId}") { backStackEntry ->
 
-            // Recupera el ID del niño.
+            // Recupera el ID del perfil seleccionado.
             val childId = backStackEntry.arguments
                 ?.getString("childId")
                 ?.toLongOrNull()
 
-            // Comprueba que el ID sea válido.
+            // Verifica que el ID sea válido.
             if (childId != null) {
 
                 ChildSettingsScreen(
                     childId = childId,
 
-                    // Se ejecuta después de eliminar.
+                    // Abre el tiempo de uso individual.
+                    onConfigureScreenTime = { selectedChildId ->
+
+                        navController.navigate(
+                            "screen_time/$selectedChildId"
+                        )
+
+                    },
+
+                    // Se ejecuta después de eliminar el perfil.
                     onChildDeleted = {
 
                         // Regresa a la lista de perfiles.
                         navController.navigate("child_profiles") {
 
-                            // Retira la configuración del historial.
+                            // Retira la lista anterior del historial.
                             popUpTo("child_profiles") {
                                 inclusive = true
                             }
@@ -219,31 +235,42 @@ fun ParentPatrolNavHost() {
                     }
                 )
 
-            }
+            } // Fin de validación.
 
         } // Fin de child_settings.
 
         // -------------------------------------------------
-        // 7. TIEMPO DE USO
+        // 7. CONFIGURACIÓN DE TIEMPO DE USO
         // -------------------------------------------------
 
-        composable("screen_time") {
+        composable("screen_time/{childId}") { backStackEntry ->
 
-            ScreenTimeScreen(
-                viewModel = viewModel(),
+            // Recupera el ID del niño seleccionado.
+            val childId = backStackEntry.arguments
+                ?.getString("childId")
+                ?.toLongOrNull()
 
-                // Continúa hacia protección.
-                onContinueClick = { _ ->
+            // Verifica que el ID sea válido.
+            if (childId != null) {
 
-                    navController.navigate("protection")
+                ScreenTimeScreen(
+                    childId = childId,
+                    viewModel = viewModel(),
 
-                }
-            )
+                    // Continúa hacia protección.
+                    onContinueClick = { _ ->
+
+                        navController.navigate("protection")
+
+                    }
+                )
+
+            } // Fin de validación.
 
         } // Fin de screen_time.
 
         // -------------------------------------------------
-        // 8. PROTECCIÓN INFANTIL
+        // 8. CONFIGURACIÓN DE PROTECCIÓN INFANTIL
         // -------------------------------------------------
 
         composable("protection") {
@@ -257,3 +284,4 @@ fun ParentPatrolNavHost() {
     } // Fin de NavHost.
 
 } // Fin de ParentPatrolNavHost.
+

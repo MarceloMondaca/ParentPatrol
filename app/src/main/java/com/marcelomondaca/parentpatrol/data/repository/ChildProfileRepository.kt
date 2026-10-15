@@ -16,6 +16,14 @@ class ChildProfileRepository(
         return childProfileDao.insertChild(child) // Guarda un perfil y devuelve su ID.
     }
 
+
+    // Obtiene un perfil infantil específico desde Room.
+    // Devuelve null si el perfil no existe.
+    suspend fun getChildById(childId: Long): ChildProfileEntity? {
+        return childProfileDao.getChildById(childId)
+    }
+
+
     suspend fun childExists(
         name: String,
         birthDate: Long

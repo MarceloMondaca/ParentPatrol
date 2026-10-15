@@ -33,4 +33,8 @@ interface ChildProfileDao {
 
     @Query("SELECT COUNT(*) FROM child_profiles") // Cuenta los perfiles registrados.
     suspend fun countChildren(): Int // Devuelve la cantidad de niños guardados.
+
+    // Busca un perfil infantil mediante su ID.
+    @Query("SELECT * FROM child_profiles WHERE id = :childId LIMIT 1")
+    suspend fun getChildById(childId: Long): ChildProfileEntity?
 }
